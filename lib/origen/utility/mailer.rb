@@ -6,6 +6,19 @@ module Origen
 
       # Generic method to send an email, alternatively use one of the
       # pre-defined mail types using the other methods.
+      # to send an email in the HTML format, speficy the following when calling the send_email method
+      # mime_version: => "1.0"
+      # content_type: => "text/html"
+      # Example: send_email({ to: to, subject: subject, body: msg, mime_version: '1.0', content_type: 'text/html' }.merge(options))
+      # If the HTML format is selected, HTML tags should be defined in the email body message.
+      # HTML message example: 
+      #
+      # msg = <<MSG
+      # <br> This is a HTML message </br>
+      # <br><h1> This is a HTML heading <h1></br>
+      # <br> The br tag specifies a break point/new line </br>
+      # MSG
+
       def send_email(options = {})
         options = { server:     Origen.site_config.email_server,
                     port:       Origen.site_config.email_port,
@@ -13,8 +26,10 @@ module Origen
                     from_alias: current_user.name,
                     subject:    'Hello',
                     body:       'Hello from Origen!',
-                    to:         'Stephen McGinty <stephen.mcginty@freescale.com>'
-                  }.merge(options)
+                    to:         'Stephen McGinty <stephen.mcginty@freescale.com>',
+                    mime_version: '',
+                    content_type: ''
+                   }.merge(options)
 
         # Force to an array
         to = options[:to].respond_to?('each') ? options[:to] : [options[:to]]
@@ -27,6 +42,8 @@ module Origen
 From: #{options[:from_alias]} <#{options[:from]}>
 To: #{addr}
 Subject: #{options[:subject]}
+MIME-Version: #{options[:mime_version]}
+Content-type: #{options[:content_type]}
 
 #{options[:body]}
 END_OF_MESSAGE
