@@ -67,8 +67,8 @@ module Origen
                     system 'bundle exec origen -v'  # Used to make sure gems install
                   else
                     puts "executing without bundler"
-                    system '/bin/tcsh'
                     system 'echo $?USER'
+                    system 'bundle install --gemfile Gemfile --bin lbin --path ~/.origen/gems'
                     system 'origen -v' # Let origen handle the gems installation and bundler setup.
                   end
                   system 'bundle install' # Make sure bundle updates the necessary config/gems required for Origen.
