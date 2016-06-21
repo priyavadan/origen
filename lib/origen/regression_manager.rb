@@ -59,21 +59,20 @@ module Origen
               Dir.chdir reference_origen_root do
                 Bundler.with_clean_env do
                   system 'rm -rf lbin'
-                 # We need a check to figure out if bundler has already setup the environment correctly.
-                  # If it has, we use bundler to execute origen, if not, we let origen setup the bundler environment itself.
-                  # origen -v essentially resolves the dependencies to setup the environment.
-                  # It essentially runs 'bundler install --gemfile Gemfile --bin lbin --path ~/.origen/gems' 
-                  if File.exist?(".bundle/config")
-                    system 'bundle exec origen -v'  # Used to make sure gems install
-                  else
-                    puts "executing without bundler"
-                    system 'source ~/.bash_profile'
-                    system 'echo $?USER'
-                    system 'source ~/.bashrc.user'
-                    system 'bundle install --gemfile Gemfile --binstubs lbin --path ~/.origen/gems/'
-                    system 'origen -v' # Let origen handle the gems installation and bundler setup.
-                  end
-                  system 'bundle install' # Make sure bundle updates the necessary config/gems required for Origen.
+                  # If regression is run using a service account, we need to setup the path/bundler manually
+                  # The regression manager needs to be passed a --service_account option when initiated. 
+                  if options[:service_account]
+                     puts "Running with a service account, setting up the workspace manually now, assuming it runs BASH!! <-- can't assume bash always"
+                     puts "This is not an ideal way, need to discuss. Though, a normal user will never set service_account to true" 
+                     system 'source ~/.bash_profile'
+                     system 'echo $?USER'
+                     system 'source ~/.bashrc.user'
+                     system 'bundle install --gemfile Gemfile --binstubs lbin --path ~/.origen/gems/'
+                     system 'origen -v' # Let origen handle the gems installation and bundler setup.
+                  else 
+                     system 'bundle exec origen -v'
+                     system 'bundle install' # Make sure bundle updates the necessary config/gems required for Origen.
+                  end 
                   Origen.log.info '######################################################'
                   Origen.log.info 'running regression command in reference workspace...'
                   Origen.log.info '######################################################'
