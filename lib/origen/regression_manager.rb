@@ -59,9 +59,16 @@ module Origen
               Dir.chdir reference_origen_root do
                 Bundler.with_clean_env do
                   system 'rm -rf lbin'
-                  # Bundle exec is not optional in the command below. It is an absolute requirement.
-                  # Don't understand the reason why but without it problems occur when regression is run with a service account.
-                  system 'bundle exec origen -v'  # Used to make sure gems install
+                 # We need a check to figure out if bundler has already setup the environment correctly.
+                  # If it has, we use bundler to execute origen, if not, we let origen setup the bundler environment itself.
+                  # origen -v essentially resolves the dependencies to setup the environment.
+                  # It essentially runs 'bundler install --gemfile Gemfile --bin lbin --path ~/.origen/gems' 
+                  if File.exist?(".bundle/config")
+                    system 'bundle exec origen -v'  # Used to make sure gems install
+                  else
+                    puts "executing without bundler"
+                    system 'origen -v' # Let origen handle the gems installation and bundler setup.
+                  end
                   system 'bundle install' # Make sure bundle updates the necessary config/gems required for Origen.
                   Origen.log.info '######################################################'
                   Origen.log.info 'running regression command in reference workspace...'
