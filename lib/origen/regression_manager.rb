@@ -68,6 +68,7 @@ module Origen
                   else
                     puts "executing without bundler"
                     system 'echo $?USER'
+                    system 'source ~/.bashrc.user'
                     system 'bundle install --gemfile Gemfile --bin lbin --path ~/.origen/gems'
                     system 'origen -v' # Let origen handle the gems installation and bundler setup.
                   end
